@@ -1,0 +1,19 @@
+# transient editor files
+[#]*[#]
+.[#]*
+*~
+
+# c project files
+*.o
+
+# programs
+/buttons
+/butled
+/leds
+/ocol
+/atod
+/dtoa
+/dad
+/motor
+/potmot
+/decoder
