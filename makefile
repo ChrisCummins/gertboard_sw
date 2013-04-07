@@ -22,10 +22,10 @@
 # so do not use any implicit rules!
 #
 
-all : buttons butled leds ocol atod dtoa dad motor potmot decoder
+all : buttons butled leds ocol atod dtoa dad motor potmot decoder toh
 
 clean :
-	rm *.o buttons butled leds ocol atod dtoa dad motor potmot decoder
+	rm *.o buttons butled leds ocol atod dtoa dad motor potmot decoder toh
 
 buttons : gb_common.o buttons.o
 	gcc -o buttons gb_common.o buttons.o
@@ -56,6 +56,9 @@ potmot : gb_common.o gb_pwm.o gb_spi.o potmot.o
 
 decoder : gb_common.o decoder.o
 	gcc -o decoder gb_common.o decoder.o
+
+toh : gb_common.o toh.o
+	gcc $(CFLAGS) -o toh gb_common.o toh.o -lm
 
 # The next lines generate the various object files
 
@@ -97,6 +100,9 @@ ocol.o : ocol.c gb_common.h gb_spi.h
 
 decoder.o : decoder.c gb_common.h
 	gcc -c decoder.c
+
+toh.o : toh.c gb_common.h
+	gcc $(CFLAGS) -c toh.c
 
 # Tags rules
 
