@@ -98,3 +98,12 @@ ocol.o : ocol.c gb_common.h gb_spi.h
 decoder.o : decoder.c gb_common.h
 	gcc -c decoder.c
 
+# Tags rules
+
+all_sources = $(wildcard *.c) $(wildcard *.h)
+
+TAGS : $(all_sources)
+	etags $^
+
+tags : $(all_sources)
+	ctags $^
