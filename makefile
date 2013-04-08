@@ -25,7 +25,7 @@
 all : buttons butled leds ocol atod dtoa dad motor potmot decoder toh
 
 clean :
-	rm *.o buttons butled leds ocol atod dtoa dad motor potmot decoder toh
+	rm -f *.o buttons butled leds ocol atod dtoa dad motor potmot decoder toh
 
 buttons : gb_common.o buttons.o
 	gcc -o buttons gb_common.o buttons.o
