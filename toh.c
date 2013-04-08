@@ -350,6 +350,13 @@ is_endgame ()
   return 1;
 }
 
+static inline void
+clear_screen ()
+{
+
+  printf ("\e[1;1H\e[2J");
+}
+
 static void
 print_game_status ()
 {
@@ -381,6 +388,8 @@ perform_action (enum rod_e rod)
 {
   disk_t d, new_d;
 
+  clear_screen ();
+
   if (disk_in_hand)
     {
       d = peek_disk (rod);
@@ -404,12 +413,12 @@ perform_action (enum rod_e rod)
         printf ("No disks on rod %c!\n", rod + 0x41);
     }
 
-  print_game_status ();
   printf ("\n");
+  print_game_status ();
 
   if (is_endgame ())
     {
-      printf ("Congratulations! ");
+      printf ("\nCongratulations! ");
       printf ("You completed the puzzle in %lu moves (%.0f%%).\n",
               move_counter, ((double) optimal / (double) move_counter) * 100);
       exit (0);
@@ -422,6 +431,8 @@ main (int argc, char **argv)
   enum rod_e r;
 
   init_input_backend ();
+
+  clear_screen ();
 
   setup_new_game ();
   print_game_status ();
