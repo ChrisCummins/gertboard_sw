@@ -279,14 +279,14 @@ setup_new_game ()
 }
 
 static disk_t
-peek_disk (enum rod_e rod)
+peek_disk_index (enum rod_e rod)
 {
-  int i = MAX_DISKS - 1;
+  disk_t i = disk_count - 1;
 
-  while (i >= 0)
+  while (i)
     {
       if (rods[rod][i])
-        return rods[rod][i];
+        return i;
       i--;
     }
 
@@ -294,21 +294,21 @@ peek_disk (enum rod_e rod)
 }
 
 static disk_t
+peek_disk (enum rod_e rod)
+{
+  return rods[rod][peek_disk_index (rod)];
+}
+
+static disk_t
 pop_disk (enum rod_e rod)
 {
-  int i = MAX_DISKS - 1, d;
+  disk_t i, d;
 
-  while (i >= 0)
-    {
-      if ((d = rods[rod][i]))
-        {
-          rods[rod][i] = 0;
-          return d;
-        }
-      i--;
-    }
+  i = peek_disk_index (rod);
+  d = rods[rod][i];
+  rods[rod][i] = 0;
 
-  return 0;
+  return d;
 }
 
 /* Push disk onto rod. If successful, returns the size of the disk. If the top
@@ -317,25 +317,20 @@ pop_disk (enum rod_e rod)
 static disk_t
 push_disk (enum rod_e rod, disk_t disk)
 {
-  int i = MAX_DISKS - 1;
-  disk_t d;
+  disk_t i, d;
 
-  while (i >= 0)
+  i = peek_disk_index (rod);
+  d = rods[rod][i];
+
+  if (d)
     {
-      if ((d = rods[rod][i]))
-        {
-          if (d > disk)
-            {
-              rods[rod][i + 1] = disk;
-              return disk;
-            }
-          else
-            return d;
-        }
-      i--;
+      if (d > disk)
+        d = rods[rod][i + 1] = disk;
     }
+  else
+    d = rods[rod][0] = disk;
 
-  return (rods[rod][0] = disk);
+  return d;
 }
 
 static int
