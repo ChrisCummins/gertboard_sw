@@ -212,10 +212,10 @@ get_next_action ()
  * use of the Raspberry Pi's GPIO or the Gertboard. This backend can be used to
  * execute the toh program on alternative architectures, such as x86. To enable
  * it, the KEYBOARD_INPUT macro must explicity defined when compiling the object
- * file. The easiest way to to do this is by setting the TOH_FLAGS variable to
- * define this when invoking make:
+ * file. The easiest way to to do this is by setting the TOH variable to define
+ * this when invoking make:
  *
- *  $ make TOH_FLAGS=-DKEYBOARD_INPUT
+ *  $ make TOH=-DKEYBOARD_INPUT
  */
 
 static struct termios ot, nt;
