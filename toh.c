@@ -390,14 +390,13 @@ perform_action (enum rod_e rod)
         {
           printf ("Placed disk %d on rod %c.\n", disk_in_hand, rod + 0x41);
           disk_in_hand = 0;
+          move_counter++;
         }
       else
         printf ("Cannot place disk %d on top of disk %d!\n", disk_in_hand, peek_disk (rod));
     }
   else
     {
-      move_counter++;
-
       if ((disk_in_hand = pop_disk (rod)))
         printf ("Picked up disk %d from rod %c.\n", disk_in_hand, rod + 0x41);
       else
