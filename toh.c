@@ -57,7 +57,7 @@
 # define unlikely(x)  (x)
 #endif
 
-#define MAX_DISKS (USHRT_MAX - 1)
+#define MAX_DISKS (USHRT_MAX - 2)
 typedef unsigned short disk_t;
 
 enum rod_e {
@@ -264,12 +264,17 @@ setup_new_game ()
 
   /* Initialise rods. */
   for (j = 0; j < ROD_MAX; j++)
-    for (i = 0; i < MAX_DISKS; i++)
-      rods[j][i] = 0;
+    {
+      for (i = 1; i < MAX_DISKS + 1; i++)
+        rods[j][i] = 0;
+      rods[j][0] = 1;
+    }
 
   /* Initialise disks. */
-  for (i = 0; i < disk_count; i++)
-    rods[0][i] = disk_count - i;
+  for (i = 1; i <= disk_count; i++)
+    rods[0][i] = disk_count + 1 - i;
+
+  rods[0][0] = disk_count;
 
   /* Determine the minimum number of moves for the puzzle size. */
   optimal = ((unsigned long) powl (2, disk_count)) - 1;
@@ -281,16 +286,7 @@ setup_new_game ()
 static disk_t
 peek_disk_index (enum rod_e rod)
 {
-  disk_t i = disk_count - 1;
-
-  while (i)
-    {
-      if (rods[rod][i])
-        return i;
-      i--;
-    }
-
-  return 0;
+  return rods[rod][0];
 }
 
 static disk_t
@@ -308,6 +304,9 @@ pop_disk (enum rod_e rod)
   d = rods[rod][i];
   rods[rod][i] = 0;
 
+  if (i > 1)
+    rods[rod][0]--;
+
   return d;
 }
 
@@ -322,27 +321,24 @@ push_disk (enum rod_e rod, disk_t disk)
   i = peek_disk_index (rod);
   d = rods[rod][i];
 
-  if (d)
+  if (d > 1)
     {
       if (d > disk)
-        d = rods[rod][i + 1] = disk;
+        {
+          d = rods[rod][i + 1] = disk;
+          rods[rod][0]++;
+        }
     }
   else
-    d = rods[rod][0] = disk;
+    d = rods[rod][1] = disk;
 
   return d;
 }
 
-static int
+static inline int
 is_endgame ()
 {
-  disk_t i;
-
-  for (i = 0; i < disk_count; i++)
-    if (rods[ROD_MAX - 1][i] != disk_count - i)
-      return 0;
-
-  return 1;
+  return (rods[ROD_MAX - 1][0] == disk_count) ? 1 : 0;
 }
 
 static inline void
@@ -361,7 +357,7 @@ print_game_status ()
     printf ("   %c   ", j + 0x41);
   printf ("\n");
 
-  for (i = disk_count; i >= 0; i--)
+  for (i = disk_count + 1; i > 0; i--)
     {
       for (j = 0; j < ROD_MAX; j++)
         {
