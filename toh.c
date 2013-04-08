@@ -405,34 +405,40 @@ perform_action (enum rod_e rod)
 
   printf ("\n");
   print_game_status ();
+}
 
-  if (is_endgame ())
+static inline void
+run_game ()
+{
+  enum rod_e r;
+
+  while (1)
     {
-      printf ("\nCongratulations! ");
-      printf ("You completed the puzzle in %lu moves (%.0f%%).\n",
-              move_counter, ((double) optimal / (double) move_counter) * 100);
-      exit (0);
+      r = get_next_action ();
+      perform_action (r);
+
+      if (is_endgame ())
+        {
+          printf ("\nCongratulations! ");
+          printf ("You completed the puzzle in %lu moves (%.0f%%).\n",
+                  move_counter,
+                  ((double) optimal / (double) move_counter) * 100);
+          exit (0);
+        }
     }
 }
 
 int
 main (int argc, char **argv)
 {
-  enum rod_e r;
-
   init_input_backend ();
 
   clear_screen ();
-
   setup_new_game ();
   print_game_status ();
   printf ("\n");
 
-  while (1)
-    {
-      r = get_next_action ();
-      perform_action (r);
-    }
+  run_game ();
 
   return 0;
 }
