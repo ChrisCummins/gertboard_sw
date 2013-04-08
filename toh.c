@@ -371,7 +371,7 @@ print_game_status ()
 
   for (j = 0; j < ROD_MAX; j++)
     printf ("  ---  ");
-  printf ("\n");
+  printf ("\n\n Moves taken: %3lu / %lu\n", move_counter, optimal);
 }
 
 static void
