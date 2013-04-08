@@ -260,7 +260,7 @@ get_next_action ()
 static void
 setup_new_game ()
 {
-  unsigned int i, j;
+  disk_t i, j;
 
   /* Initialise rods. */
   for (j = 0; j < ROD_MAX; j++)
@@ -336,7 +336,7 @@ push_disk (enum rod_e rod, disk_t disk)
 static int
 is_endgame ()
 {
-  unsigned int i;
+  disk_t i;
 
   for (i = 0; i < disk_count; i++)
     if (rods[ROD_MAX - 1][i] != disk_count - i)
