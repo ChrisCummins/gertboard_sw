@@ -33,10 +33,12 @@
 #include <limits.h>
 #include <math.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
+#include <unistd.h>
 
 /*
  * Only include the gertboard header if necessary. This keeps the program
@@ -66,6 +68,14 @@ enum rod_e {
   ROD_C,
   ROD_MAX
 };
+
+/*
+ * Room is left here for future use when
+ * additional arguments are implemented.
+ */
+enum flags_e {
+  FLAGS_QUIET = 1 << 0,
+} flags = 0;
 
 static disk_t         rods[ROD_MAX][MAX_DISKS];
 static disk_t         disk_in_hand = 0;
@@ -117,7 +127,7 @@ sig_handler (int sig)
     {
       SET_GPIO (GPIO_PULL, 0);
       gpio_set_pull (0);
-      exit (0);
+      exit (EXIT_SUCCESS);
     }
 }
 
@@ -257,6 +267,19 @@ get_next_action ()
 
 #endif /* KEYBOARD_INPUT */
 
+static inline void
+message (const char *format, ...)
+{
+  va_list ap;
+
+  if (!(flags & FLAGS_QUIET))
+    {
+      va_start(ap, format);
+      vprintf(format, ap);
+      va_end(ap);
+    }
+}
+
 static void
 setup_new_game ()
 {
@@ -279,8 +302,8 @@ setup_new_game ()
   /* Determine the minimum number of moves for the puzzle size. */
   optimal = ((unsigned long) powl (2, disk_count)) - 1;
 
-  printf ("A %d disk puzzle, this can be solved in %lu moves.\n\n",
-          disk_count, optimal);
+  message ("A %d disk puzzle, this can be solved in %lu moves.\n\n",
+           disk_count, optimal);
 }
 
 static disk_t
@@ -344,8 +367,7 @@ is_endgame ()
 static inline void
 clear_screen ()
 {
-
-  printf ("\e[1;1H\e[2J");
+  message ("\e[1;1H\e[2J");
 }
 
 static void
@@ -354,24 +376,25 @@ print_game_status ()
   int i, j;
 
   for (j = 0; j < ROD_MAX; j++)
-    printf ("   %c   ", j + 0x41);
-  printf ("\n");
+    message ("   %c   ", j + 0x41);
+  message ("\n");
 
   for (i = disk_count + 1; i > 0; i--)
     {
       for (j = 0; j < ROD_MAX; j++)
         {
           if (rods[j][i])
-            printf ("  [%d]  ", rods[j][i]);
+            message ("  [%d]  ", rods[j][i]);
           else
-            printf ("   |   ");
+            message ("   |   ");
         }
-      printf ("\n");
+      message ("\n");
     }
 
   for (j = 0; j < ROD_MAX; j++)
-    printf ("  ---  ");
-  printf ("\n\n Moves taken: %3lu / %lu\n", move_counter, optimal);
+    message ("  ---  ");
+  message ("\n\n Moves taken: %3lu / %lu\n",
+           move_counter, optimal);
 }
 
 static void
@@ -388,22 +411,24 @@ perform_action (enum rod_e rod)
 
       if (d == 0 || new_d == disk_in_hand)
         {
-          printf ("Placed disk %d on rod %c.\n", disk_in_hand, rod + 0x41);
+          message ("Placed disk %d on rod %c.\n",
+                   disk_in_hand, rod + 0x41);
           disk_in_hand = 0;
           move_counter++;
         }
       else
-        printf ("Cannot place disk %d on top of disk %d!\n", disk_in_hand, peek_disk (rod));
+        message ("Cannot place disk %d on top of disk %d!\n",
+                 disk_in_hand, peek_disk (rod));
     }
   else
     {
       if ((disk_in_hand = pop_disk (rod)))
-        printf ("Picked up disk %d from rod %c.\n", disk_in_hand, rod + 0x41);
+        message ("Picked up disk %d from rod %c.\n",
+                 disk_in_hand, rod + 0x41);
       else
-        printf ("No disks on rod %c!\n", rod + 0x41);
+        message ("No disks on rod %c!\n", rod + 0x41);
     }
-
-  printf ("\n");
+  message ("\n");
   print_game_status ();
 }
 
@@ -419,11 +444,12 @@ run_game ()
 
       if (is_endgame ())
         {
-          printf ("\nCongratulations! ");
+          message ("\n");
+          printf ("Congratulations! ");
           printf ("You completed the puzzle in %lu moves (%.0f%%).\n",
                   move_counter,
                   ((double) optimal / (double) move_counter) * 100);
-          exit (0);
+          exit (EXIT_SUCCESS);
         }
     }
 }
@@ -431,12 +457,37 @@ run_game ()
 int
 main (int argc, char **argv)
 {
+  int c;
+
+  while ((c = getopt (argc, argv, ":qd:")) != -1)
+    {
+      switch (c)
+        {
+        case 'q':
+          flags |= FLAGS_QUIET;
+          break;
+        case 'd':
+          disk_count = atoi (optarg);
+          if (disk_count < 2 || disk_count > MAX_DISKS)
+            {
+              fprintf (stderr, "The number of disks must be in the "
+                       "range [2, %d].\n", MAX_DISKS);
+              exit (EXIT_FAILURE);
+            }
+          break;
+        default:
+          fprintf (stderr, "Usage: %s [-q] [-d <ndisks>]\n",
+                   argv[0]);
+          exit (EXIT_FAILURE);
+        }
+    }
+
   init_input_backend ();
 
   clear_screen ();
   setup_new_game ();
   print_game_status ();
-  printf ("\n");
+  message ("\n");
 
   run_game ();
 
