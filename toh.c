@@ -25,8 +25,8 @@
  * If we don't explicitly declare keyboard input, assume we are compiling with
  * the Raspberry Pi's GPIO as input device.
  */
-#ifndef KEYBOARD_INPUT
-# define GERTBOARD_INPUT
+#ifndef KEYBOARD_BACKEND
+# define GERTBOARD_BACKEND
 #endif
 
 #include <assert.h>
@@ -44,7 +44,7 @@
  * Only include the gertboard header if necessary. This keeps the program
  * architecture-agnostic, allowing for builds on x86 and other systems.
  */
-#ifdef GERTBOARD_INPUT
+#ifdef GERTBOARD_BACKEND
 # include "gb_common.h"
 #endif
 
@@ -91,7 +91,7 @@ static unsigned long  optimal;
 static void           init_input_backend ();
 static enum rod_e     get_next_action ();
 
-#ifdef GERTBOARD_INPUT
+#ifdef GERTBOARD_BACKEND
 
 /*
  * Gertboard Input Backend.
@@ -213,7 +213,7 @@ get_next_action ()
     }
 }
 
-#elif KEYBOARD_INPUT
+#elif KEYBOARD_BACKEND
 
 /*
  * Keyboard Input Backend.
@@ -221,11 +221,11 @@ get_next_action ()
  * This backend collects input events from the stdin stream, so does not make
  * use of the Raspberry Pi's GPIO or the Gertboard. This backend can be used to
  * execute the toh program on alternative architectures, such as x86. To enable
- * it, the KEYBOARD_INPUT macro must explicity defined when compiling the object
- * file. The easiest way to to do this is by setting the TOH variable to define
- * this when invoking make:
+ * it, the KEYBOARD_BACKEND macro must explicity defined when compiling the
+ * object file. The easiest way to to do this is by setting the TOH variable to
+ * define this when invoking make:
  *
- *  $ make TOH=-DKEYBOARD_INPUT
+ *  $ make TOH=-DKEYBOARD_BACKEND
  */
 
 static struct termios ot, nt;
@@ -265,7 +265,7 @@ get_next_action ()
     }
 }
 
-#endif /* KEYBOARD_INPUT */
+#endif /* KEYBOARD_BACKEND */
 
 static inline void
 message (const char *format, ...)
