@@ -88,6 +88,11 @@ static unsigned int   disk_count = 3;
 static unsigned long  move_counter = 0;
 static unsigned long  optimal;
 
+/* Game functions. */
+static disk_t peek_disk_index (enum rod_e rod);
+static disk_t peek_disk       (enum rod_e rod);
+static disk_t pop_disk        (enum rod_e rod);
+
 /*
  * Backend dependent functions. We declare them here to enforce the
  * prototype, leaving the actual implementation for the individual
