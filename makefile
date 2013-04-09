@@ -103,8 +103,14 @@ ocol.o : ocol.c gb_common.h gb_spi.h
 decoder.o : decoder.c gb_common.h
 	gcc $(CFLAGS) -c decoder.c
 
+ifneq ($(BACKEND),)
+backend_flags=-D$(BACKEND)_BACKEND
+else
+backend_flags=-Dgertboard_BACKEND
+endif
+
 toh.o : toh.c gb_common.h
-	gcc $(CFLAGS) $(TOH) -c toh.c
+	gcc $(CFLAGS) $(backend_flags) -c toh.c
 
 # Tags rules
 
