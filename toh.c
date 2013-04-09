@@ -56,6 +56,7 @@
 
 #define IS_LEGAL_MOVE(r1, r2) (peek_disk ((r2)) > peek_disk ((r1)) \
                                || peek_disk ((r2)) == 0)
+#define IS_EVEN(x) ((x) % 2)
 
 #define MAX_DISKS (USHRT_MAX - 2)
 typedef unsigned short disk_t;
