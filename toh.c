@@ -83,9 +83,10 @@ static unsigned long  move_counter = 0;
 static unsigned long  optimal;
 
 /* Game functions. */
-static disk_t peek_disk_index (enum rod_e rod);
-static disk_t peek_disk       (enum rod_e rod);
-static disk_t pop_disk        (enum rod_e rod);
+#define       peek_disk_index(r) rods[(r)][0]
+#define       peek_disk(r)       rods[(r)][peek_disk_index (r)]
+static disk_t pop_disk    (enum rod_e rod);
+static disk_t push_disk   (enum rod_e rod, disk_t disk);
 
 /*
  * Backend dependent functions. We declare them here to enforce the
@@ -386,19 +387,7 @@ setup_new_game ()
            disk_count, optimal);
 }
 
-static disk_t
-peek_disk_index (enum rod_e rod)
-{
-  return rods[rod][0];
-}
-
-static disk_t
-peek_disk (enum rod_e rod)
-{
-  return rods[rod][peek_disk_index (rod)];
-}
-
-static disk_t
+static inline disk_t
 pop_disk (enum rod_e rod)
 {
   disk_t i, d;
@@ -416,7 +405,7 @@ pop_disk (enum rod_e rod)
 /* Push disk onto rod. If successful, returns the size of the disk. If the top
  * disk on the rod is smaller than the new one, the size of the smaller disk
  * will be returned. */
-static disk_t
+static inline disk_t
 push_disk (enum rod_e rod, disk_t disk)
 {
   disk_t i, d;
