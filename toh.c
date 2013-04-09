@@ -61,6 +61,9 @@
 
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
 
+#define IS_LEGAL_MOVE(r1, r2) (peek_disk ((r2)) > peek_disk ((r1)) \
+                               || peek_disk ((r2)) == 0)
+
 #define MAX_DISKS (USHRT_MAX - 2)
 typedef unsigned short disk_t;
 
