@@ -22,10 +22,12 @@
 # so do not use any implicit rules!
 #
 
+CFLAGS=-Wall -W -Wuninitialized -Wextra -Wno-unused-parameter -g -O0
+
 all : buttons butled leds ocol atod dtoa dad motor potmot decoder toh
 
 clean :
-	rm *.o buttons butled leds ocol atod dtoa dad motor potmot decoder toh
+	rm -f *.o buttons butled leds ocol atod dtoa dad motor potmot decoder toh
 
 buttons : gb_common.o buttons.o
 	gcc -o buttons gb_common.o buttons.o
@@ -63,46 +65,52 @@ toh : gb_common.o toh.o
 # The next lines generate the various object files
 
 gb_common.o : gb_common.c gb_common.h
-	gcc -c gb_common.c
+	gcc $(CFLAGS) -c gb_common.c
 
 buttons.o : buttons.c gb_common.h
-	gcc -c buttons.c
+	gcc $(CFLAGS) -c buttons.c
 
 butled.o : butled.c gb_common.h
-	gcc -c butled.c
+	gcc $(CFLAGS) -c butled.c
 
 leds.o : leds.c gb_common.h
-	gcc -c leds.c
+	gcc $(CFLAGS) -c leds.c
 
 gb_spi.o : gb_spi.c gb_common.h gb_spi.h
-	gcc -c gb_spi.c
+	gcc $(CFLAGS) -c gb_spi.c
 
 gb_pwm.o : gb_pwm.c gb_common.h gb_pwm.h
-	gcc -c gb_pwm.c
+	gcc $(CFLAGS) -c gb_pwm.c
 
 atod.o : atod.c gb_common.h gb_spi.h
-	gcc -c atod.c
+	gcc $(CFLAGS) -c atod.c
 
 dtoa.o : dtoa.c gb_common.h gb_spi.h
-	gcc -c dtoa.c
+	gcc $(CFLAGS) -c dtoa.c
 
 dad.o : dad.c gb_common.h gb_spi.h
-	gcc -c dad.c
+	gcc $(CFLAGS) -c dad.c
 
 motor.o : motor.c gb_common.h gb_pwm.h
-	gcc -c motor.c
+	gcc $(CFLAGS) -c motor.c
 
 potmot.o : potmot.c gb_common.h gb_spi.h gb_pwm.h
-	gcc -c potmot.c
+	gcc $(CFLAGS) -c potmot.c
 
 ocol.o : ocol.c gb_common.h gb_spi.h
-	gcc -c ocol.c
+	gcc $(CFLAGS) -c ocol.c
 
 decoder.o : decoder.c gb_common.h
-	gcc -c decoder.c
+	gcc $(CFLAGS) -c decoder.c
+
+ifneq ($(BACKEND),)
+backend_flags=-D$(BACKEND)_BACKEND
+else
+backend_flags=-Dgertboard_BACKEND
+endif
 
 toh.o : toh.c gb_common.h
-	gcc $(CFLAGS) -c toh.c
+	gcc $(CFLAGS) $(backend_flags) -c toh.c
 
 # Tags rules
 
