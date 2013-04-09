@@ -21,6 +21,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * Only include the gertboard header if necessary. This keeps the program
+ * architecture-agnostic, allowing for builds on x86 and other systems.
+ */
+#ifdef gertboard_BACKEND
+# include "gb_common.h"
+#endif
+
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -31,14 +39,6 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-
-/*
- * Only include the gertboard header if necessary. This keeps the program
- * architecture-agnostic, allowing for builds on x86 and other systems.
- */
-#ifdef gertboard_BACKEND
-# include "gb_common.h"
-#endif
 
 /*
  * Utilize GCC's branch prediction hints when possible.
