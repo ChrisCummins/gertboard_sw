@@ -59,6 +59,8 @@
 # define unlikely(x)  (x)
 #endif
 
+#define eprintf(...) fprintf (stderr, __VA_ARGS__)
+
 #define MAX_DISKS (USHRT_MAX - 2)
 typedef unsigned short disk_t;
 
@@ -151,7 +153,7 @@ init_input_backend ()
 
   if (unlikely (signal(SIGINT, sig_handler) == SIG_ERR))
     {
-      fprintf (stderr, "Failed to attach signal handler to SIGINT.\n");
+      eprintf ("Failed to attach signal handler to SIGINT.\n");
       abort ();
     }
 }
@@ -173,7 +175,7 @@ translate_button (unsigned int b)
       return ROD_C;
       break;
     default:
-      fprintf (stderr, "Invalid button: [%d]!\n", b);
+      eprintf ("Invalid button: [%d]!\n", b);
       abort ();
       break;
     }
@@ -470,14 +472,13 @@ main (int argc, char **argv)
           disk_count = atoi (optarg);
           if (disk_count < 2 || disk_count > MAX_DISKS)
             {
-              fprintf (stderr, "The number of disks must be in the "
-                       "range [2, %d].\n", MAX_DISKS);
+              eprintf ("The number of disks must be in the range [2, %d].\n",
+                       MAX_DISKS);
               exit (EXIT_FAILURE);
             }
           break;
         default:
-          fprintf (stderr, "Usage: %s [-q] [-d <ndisks>]\n",
-                   argv[0]);
+          eprintf ("Usage: %s [-q] [-d <ndisks>]\n", argv[0]);
           exit (EXIT_FAILURE);
         }
     }
