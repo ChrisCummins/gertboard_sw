@@ -269,6 +269,93 @@ get_next_action ()
     }
 }
 
+#elif autonomous_BACKEND
+
+/*
+ * Autonomous Backend.
+ *
+ * This autonomous backend includes an algorithm for determining the option next
+ * action and will solve any game in the minimum possible number of moves. This
+ * backend in architecture agnostic, so can be compiled on x86. To enable it,
+ * the autonomous_BACKEND macro must explicity defined when compiling the object
+ * file. The easiest way to to do this is by setting the BACKEND variable when
+ * invoking make:
+ *
+ *  $ make BACKEND=autonomous
+ */
+
+static enum direction_e {
+  MOVE_LEFT  = 2,
+  MOVE_RIGHT = 1
+} direction;
+
+static enum rod_e lr = 0, next_rod = 0;
+
+/* There is no setup required for this backend. */
+static inline void init_input_backend () {}
+
+static void
+stutter ()
+{
+  int i, j = 0, k = 0;
+
+  for (i = 0; i < 9000000; i++)
+    {
+      j++;
+      k--;
+    }
+}
+
+static inline enum rod_e
+determine_next_rod ()
+{
+  enum rod_e base, probe;
+
+  for (base = 0; base < ROD_MAX; base++)
+    if (base ^ lr && peek_disk (base))
+      for (probe = 0; probe < ROD_MAX; probe++)
+        if (probe ^ base && probe ^ lr)
+          if (IS_LEGAL_MOVE (base, probe))
+            {
+              next_rod = probe;
+              goto found_solution;
+            }
+
+
+ found_solution:
+  return base;
+}
+
+static enum rod_e
+get_next_action ()
+{
+  if (!(flags & FLAGS_QUIET))
+    {
+      int i;
+      for (i = 0; i < 20; i++)
+        stutter ();
+    }
+
+  /* Determine the direction to move the smallest disk. */
+  if (!direction)
+    direction = (IS_EVEN (disk_count)) ? MOVE_LEFT : MOVE_RIGHT;
+
+  if (IS_EVEN (move_counter))
+    {
+      if (disk_in_hand)
+        return next_rod;
+      else
+        return determine_next_rod ();
+    }
+  else
+    {
+      if (disk_in_hand)
+        return lr = ((lr + direction) % ROD_MAX);
+      else
+        return lr;
+    }
+}
+
 #else
 # error "Incorrect or missing backend!"
 #endif /* End of backend-conditional code. */
