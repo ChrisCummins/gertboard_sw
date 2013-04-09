@@ -60,6 +60,7 @@
 #endif
 
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
+#define mprintf(...) if (!(flags & FLAGS_QUIET)) printf (__VA_ARGS__)
 
 #define IS_LEGAL_MOVE(r1, r2) (peek_disk ((r2)) > peek_disk ((r1)) \
                                || peek_disk ((r2)) == 0)
@@ -277,19 +278,6 @@ get_next_action ()
 
 #endif /* KEYBOARD_BACKEND */
 
-static inline void
-message (const char *format, ...)
-{
-  va_list ap;
-
-  if (!(flags & FLAGS_QUIET))
-    {
-      va_start(ap, format);
-      vprintf(format, ap);
-      va_end(ap);
-    }
-}
-
 static void
 setup_new_game ()
 {
@@ -312,7 +300,7 @@ setup_new_game ()
   /* Determine the minimum number of moves for the puzzle size. */
   optimal = ((unsigned long) powl (2, disk_count)) - 1;
 
-  message ("A %d disk puzzle, this can be solved in %lu moves.\n\n",
+  mprintf ("A %d disk puzzle, this can be solved in %lu moves.\n\n",
            disk_count, optimal);
 }
 
@@ -377,7 +365,7 @@ is_endgame ()
 static inline void
 clear_screen ()
 {
-  message ("\e[1;1H\e[2J");
+  mprintf ("\e[1;1H\e[2J");
 }
 
 static void
@@ -386,24 +374,28 @@ print_game_status ()
   int i, j;
 
   for (j = 0; j < ROD_MAX; j++)
-    message ("   %c   ", j + 0x41);
-  message ("\n");
+    mprintf ("   %c   ", j + 0x41);
+  mprintf ("\n");
 
   for (i = disk_count + 1; i > 0; i--)
     {
       for (j = 0; j < ROD_MAX; j++)
         {
           if (rods[j][i])
-            message ("  [%d]  ", rods[j][i]);
+            {
+              mprintf ("  [%d]  ", rods[j][i]);
+            }
           else
-            message ("   |   ");
+            {
+              mprintf ("   |   ");
+            }
         }
-      message ("\n");
+      mprintf ("\n");
     }
 
   for (j = 0; j < ROD_MAX; j++)
-    message ("  ---  ");
-  message ("\n\n Moves taken: %3lu / %lu\n",
+    mprintf ("  ---  ");
+  mprintf ("\n\n Moves taken: %3lu / %lu\n",
            move_counter, optimal);
 }
 
@@ -421,24 +413,28 @@ perform_action (enum rod_e rod)
 
       if (d == 0 || new_d == disk_in_hand)
         {
-          message ("Placed disk %d on rod %c.\n",
+          mprintf ("Placed disk %d on rod %c.\n",
                    disk_in_hand, rod + 0x41);
           disk_in_hand = 0;
           move_counter++;
         }
       else
-        message ("Cannot place disk %d on top of disk %d!\n",
+        mprintf ("Cannot place disk %d on top of disk %d!\n",
                  disk_in_hand, peek_disk (rod));
     }
   else
     {
       if ((disk_in_hand = pop_disk (rod)))
-        message ("Picked up disk %d from rod %c.\n",
-                 disk_in_hand, rod + 0x41);
+        {
+          mprintf ("Picked up disk %d from rod %c.\n",
+                   disk_in_hand, rod + 0x41);
+        }
       else
-        message ("No disks on rod %c!\n", rod + 0x41);
+        {
+          mprintf ("No disks on rod %c!\n", rod + 0x41);
+        }
     }
-  message ("\n");
+  mprintf ("\n");
   print_game_status ();
 }
 
@@ -454,7 +450,7 @@ run_game ()
 
       if (is_endgame ())
         {
-          message ("\n");
+          mprintf ("\n");
           printf ("Congratulations! ");
           printf ("You completed the puzzle in %lu moves (%.0f%%).\n",
                   move_counter,
@@ -496,7 +492,7 @@ main (int argc, char **argv)
   clear_screen ();
   setup_new_game ();
   print_game_status ();
-  message ("\n");
+  mprintf ("\n");
 
   run_game ();
 
