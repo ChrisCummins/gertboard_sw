@@ -54,9 +54,9 @@
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
 #define mprintf(...) if (!(flags & FLAGS_QUIET)) printf (__VA_ARGS__)
 
-#define IS_LEGAL_MOVE(r1, r2) (peek_disk ((r2)) > peek_disk ((r1)) \
+#define is_legal_move(r1, r2) (peek_disk ((r2)) > peek_disk ((r1)) \
                                || peek_disk ((r2)) == 0)
-#define IS_EVEN(x) ((x) % 2)
+#define is_even(x) ((x) % 2)
 
 #define MAX_DISKS (USHRT_MAX - 2)
 typedef unsigned short disk_t;
@@ -107,19 +107,19 @@ static enum rod_e     get_next_action ();
 
 #define GPIO_PULL_UP  2
 
-#define SET_GPIO(gpio, val)                     \
+#define set_gpio(gpio, val)                     \
   (gpio) = (val);                               \
   short_wait ()
 
-#define IS_BUTTON(x) (x == 4 || x == 2 || x == 1)
+#define is_button(x) (x == 4 || x == 2 || x == 1)
 
 static unsigned int b, lb = 0, pb = 0x10;
 
 static inline void
 gpio_set_pull (unsigned pull)
 {
-  SET_GPIO (GPIO_PULL, GPIO_PULL_UP);
-  SET_GPIO (GPIO_PULLCLK0, 0x03800000);
+  set_gpio (GPIO_PULL, GPIO_PULL_UP);
+  set_gpio (GPIO_PULLCLK0, 0x03800000);
   GPIO_PULL = 0;
   GPIO_PULLCLK0 = 0;
 }
@@ -129,7 +129,7 @@ sig_handler (int sig)
 {
   if (sig == SIGINT)
     {
-      SET_GPIO (GPIO_PULL, 0);
+      set_gpio (GPIO_PULL, 0);
       gpio_set_pull (0);
       exit (EXIT_SUCCESS);
     }
@@ -163,7 +163,7 @@ init_input_backend ()
 static inline enum rod_e
 translate_button (unsigned int b)
 {
-  assert (IS_BUTTON (b));
+  assert (is_button (b));
 
   switch (b)
     {
@@ -198,7 +198,7 @@ get_next_action ()
   while (1)
     {
       b = (~GPIO_IN0 >> 23) & 0x07;
-      if ((IS_BUTTON (b) || b == 0) && b ^ pb)
+      if ((is_button (b) || b == 0) && b ^ pb)
         {
           pb = b;
 
@@ -315,7 +315,7 @@ determine_next_rod ()
     if (base ^ lr && peek_disk (base))
       for (probe = 0; probe < ROD_MAX; probe++)
         if (probe ^ base && probe ^ lr)
-          if (IS_LEGAL_MOVE (base, probe))
+          if (is_legal_move (base, probe))
             {
               next_rod = probe;
               goto found_solution;
@@ -338,9 +338,9 @@ get_next_action ()
 
   /* Determine the direction to move the smallest disk. */
   if (!direction)
-    direction = (IS_EVEN (disk_count)) ? MOVE_LEFT : MOVE_RIGHT;
+    direction = (is_even (disk_count)) ? MOVE_LEFT : MOVE_RIGHT;
 
-  if (IS_EVEN (move_counter))
+  if (is_even (move_counter))
     {
       if (disk_in_hand)
         return next_rod;
