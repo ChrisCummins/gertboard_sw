@@ -460,7 +460,7 @@ static inline void run_game()
                 r = get_next_action();
                 perform_action(r);
 
-                if (is_endgame())
+                if (unlikely(is_endgame()))
 			break;
         }
 
