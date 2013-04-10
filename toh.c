@@ -112,10 +112,8 @@ static inline disk_t push_disk(enum rod_e rod, disk_t disk)
         i = peek_disk_index(rod);
         d = rods[rod][i];
 
-        if (d > 1)
-        {
-                if (d > disk)
-                {
+        if (d > 1) {
+                if (d > disk) {
                         d = rods[rod][i + 1] = disk;
                         rods[rod][0]++;
                 }
@@ -196,8 +194,7 @@ static inline enum rod_e translate_button(unsigned int b)
 {
         assert(is_button(b));
 
-        switch (b)
-        {
+        switch (b) {
         case 4:
                 return ROD_A;
                 break;
@@ -229,8 +226,7 @@ static enum rod_e get_next_action ()
                 if ((is_button(b) || b == 0) && b ^ pb) {
                         pb = b;
 
-                        if (b && b ^ lb)
-                        {
+                        if (b && b ^ lb) {
                                 lb = b;
                                 return translate_button(b);
                         }
@@ -344,8 +340,6 @@ static inline enum rod_e determine_next_rod()
                                                 next_rod = probe;
                                                 goto found_solution;
                                         }
-
-
 found_solution:
         return base;
 }
@@ -354,6 +348,7 @@ static enum rod_e get_next_action()
 {
         if (!(flags & FLAGS_QUIET)) {
                 int i;
+
                 for (i = 0; i < 20; i++)
                         stutter();
         }
@@ -382,8 +377,7 @@ static void setup_new_game()
         disk_t i, j;
 
         /* Initialise rods. */
-        for (j = 0; j < ROD_MAX; j++)
-        {
+        for (j = 0; j < ROD_MAX; j++) {
                 for (i = 1; i < MAX_DISKS + 1; i++)
                         rods[j][i] = 0;
                 rods[j][0] = 1;
@@ -443,17 +437,14 @@ static void perform_action(enum rod_e rod)
                                 disk_in_hand, rod + 0x41);
                         disk_in_hand = 0;
                         move_counter++;
-                }
-                else
+                } else
                         mprintf("Cannot place disk %d on top of disk %d!\n",
                                 disk_in_hand, peek_disk(rod));
-        }
-        else {
+        } else {
                 if ((disk_in_hand = pop_disk(rod))) {
                         mprintf("Picked up disk %d from rod %c.\n",
                                 disk_in_hand, rod + 0x41);
-                }
-                else {
+                } else {
                         mprintf("No disks on rod %c!\n", rod + 0x41);
                 }
         }
