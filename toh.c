@@ -460,14 +460,12 @@ static inline void run_game()
                 r = get_next_action();
                 perform_action(r);
 
-                if (is_endgame()) {
-                        mprintf("\n");
-                        printf("Congratulations! Puzzle completed in %lu moves "
-                               "(%.0f%%).\n", move_counter,
-                               ((double) optimal / (double) move_counter) * 100);
-                        exit(EXIT_SUCCESS);
-                }
+                if (is_endgame())
+			break;
         }
+
+	mprintf("\nCongratulations! Puzzle completed in %lu moves (%.0f%%).\n",
+		move_counter, ((double) optimal / (double) move_counter) * 100);
 }
 
 int main(int argc, char **argv)
