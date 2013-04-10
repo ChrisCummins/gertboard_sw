@@ -54,9 +54,11 @@
 #define eprintf(...) fprintf(stderr, __VA_ARGS__)
 #define mprintf(...) if (!(flags & FLAGS_QUIET)) printf(__VA_ARGS__)
 
+#define is_even(x)            ((x) % 2)
 #define is_legal_move(r1, r2) (peek_disk((r2)) > peek_disk((r1))        \
                                || peek_disk((r2)) == 0)
-#define is_even(x) ((x) % 2)
+#define is_endgame()          (rods[ROD_MAX - 1][0] == disk_count)
+#define clear_screen()        mprintf("\e[1;1H\e[2J")
 
 #define MAX_DISKS (USHRT_MAX - 2)
 typedef unsigned short disk_t;
@@ -85,8 +87,44 @@ static unsigned long  optimal;
 /* Game functions. */
 #define       peek_disk_index(r) rods[(r)][0]
 #define       peek_disk(r)       rods[(r)][peek_disk_index(r)]
-static disk_t pop_disk(enum rod_e rod);
-static disk_t push_disk(enum rod_e rod, disk_t disk);
+
+static inline disk_t pop_disk(enum rod_e rod)
+{
+        disk_t i, d;
+
+        i = peek_disk_index(rod);
+        d = rods[rod][i];
+        rods[rod][i] = 0;
+
+        if (i > 1)
+                rods[rod][0]--;
+
+        return d;
+}
+
+/* Push disk onto rod. If successful, returns the size of the disk. If the top
+ * disk on the rod is smaller than the new one, the size of the smaller disk
+ * will be returned. */
+static inline disk_t push_disk(enum rod_e rod, disk_t disk)
+{
+        disk_t i, d;
+
+        i = peek_disk_index(rod);
+        d = rods[rod][i];
+
+        if (d > 1)
+        {
+                if (d > disk)
+                {
+                        d = rods[rod][i + 1] = disk;
+                        rods[rod][0]++;
+                }
+        }
+        else
+                d = rods[rod][1] = disk;
+
+        return d;
+}
 
 /*
  * Backend dependent functions. We declare them here to enforce the
@@ -114,15 +152,13 @@ static enum rod_e  get_next_action ();
 
 #define is_button(x) (x == 4 || x == 2 || x == 1)
 
-static unsigned int b, lb = 0, pb = 0x10;
+#define gpio_set_pull(p) 			\
+	set_gpio(GPIO_PULL, (p));		\
+        set_gpio(GPIO_PULLCLK0, 0x03800000);	\
+        GPIO_PULL = 0;				\
+        GPIO_PULLCLK0 = 0
 
-static inline void gpio_set_pull(unsigned pull)
-{
-        set_gpio(GPIO_PULL, GPIO_PULL_UP);
-        set_gpio(GPIO_PULLCLK0, 0x03800000);
-        GPIO_PULL = 0;
-        GPIO_PULLCLK0 = 0;
-}
+static unsigned int b, lb = 0, pb = 0x10;
 
 static void sig_handler(int sig)
 {
@@ -366,54 +402,6 @@ static void setup_new_game()
 
         mprintf ("A %d disk puzzle, this can be solved in %lu moves.\n\n",
                  disk_count, optimal);
-}
-
-static inline disk_t pop_disk(enum rod_e rod)
-{
-        disk_t i, d;
-
-        i = peek_disk_index(rod);
-        d = rods[rod][i];
-        rods[rod][i] = 0;
-
-        if (i > 1)
-                rods[rod][0]--;
-
-        return d;
-}
-
-/* Push disk onto rod. If successful, returns the size of the disk. If the top
- * disk on the rod is smaller than the new one, the size of the smaller disk
- * will be returned. */
-static inline disk_t push_disk(enum rod_e rod, disk_t disk)
-{
-        disk_t i, d;
-
-        i = peek_disk_index(rod);
-        d = rods[rod][i];
-
-        if (d > 1)
-        {
-                if (d > disk)
-                {
-                        d = rods[rod][i + 1] = disk;
-                        rods[rod][0]++;
-                }
-        }
-        else
-                d = rods[rod][1] = disk;
-
-        return d;
-}
-
-static inline int is_endgame()
-{
-        return (rods[ROD_MAX - 1][0] == disk_count) ? 1 : 0;
-}
-
-static inline void clear_screen()
-{
-        mprintf("\e[1;1H\e[2J");
 }
 
 static void print_game_status()
