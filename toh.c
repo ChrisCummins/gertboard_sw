@@ -362,17 +362,15 @@ static enum rod_e get_next_action()
         if (!direction)
                 direction = (is_even(disk_count)) ? MOVE_LEFT : MOVE_RIGHT;
 
-        if (is_even(move_counter)) {
-                if (disk_in_hand)
-                        return next_rod;
-                else
-                        return determine_next_rod();
-        } else {
-                if (disk_in_hand)
-                        return lr = ((lr + direction) % ROD_MAX);
-                else
-                        return lr;
-        }
+	if (disk_in_hand) {
+		return (is_even(move_counter))
+			? next_rod
+			: (lr = ((lr + direction) % ROD_MAX));
+	} else {
+		return (is_even(move_counter))
+			? determine_next_rod()
+			: lr;
+	}
 }
 
 #else
