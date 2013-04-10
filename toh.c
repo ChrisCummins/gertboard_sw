@@ -230,13 +230,11 @@ static enum rod_e get_next_action ()
 			if (b && b ^ lb) {
 				lb = b;
 				return translate_button(b);
-			}
-			else
+			} else
 				lb = b;
 
 			pause_thread(100);
-		}
-		else
+		} else
 			pb = b;
 	}
 }
@@ -410,8 +408,7 @@ static void print_game_status()
 		for (j = 0; j < ROD_MAX; j++) {
 			if (rods[j][i]) {
 				mprintf("  [%d]	 ", rods[j][i]);
-			}
-			else {
+			} else {
 				mprintf("   |	");
 			}
 		}
