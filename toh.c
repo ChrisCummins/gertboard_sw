@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 /*
@@ -454,18 +455,38 @@ static void perform_action(enum rod_e rod)
 
 static inline void run_game()
 {
-        enum rod_e r;
+	enum rod_e r;
+	time_t start, stop;
+	clock_t clockbegin, clockend;
+	double systemtime, totaltime;
 
-        while (1) {
-                r = get_next_action();
-                perform_action(r);
+	/* Don't start the clock until we've made the first move. */
+	r = get_next_action();
+	clockbegin = clock();
+	time(&start);
+
+	while (1) {
+		perform_action(r);
 
                 if (unlikely(is_endgame()))
 			break;
-        }
 
-	mprintf("\nCongratulations! Puzzle completed in %lu moves (%.0f%%).\n",
-		move_counter, ((double) optimal / (double) move_counter) * 100);
+		r = get_next_action();
+	}
+
+	clockend = clock();
+	time(&stop);
+
+	systemtime = ((double) clockend - (double) clockbegin) / CLOCKS_PER_SEC;
+	totaltime = difftime(stop, start);
+
+	printf("\nCongratulations! Puzzle completed in %lu moves (%.0f%%).\n",
+	       move_counter, ((double) optimal / (double) move_counter) * 100);
+	printf("Time:  %.2fs system, %.0fs total.\n",
+	       systemtime, totaltime);
+	printf("Speed: %.2fmps system, %0.2fmps total.\n",
+	       (double) move_counter / systemtime,
+	       (double) move_counter / totaltime);
 }
 
 int main(int argc, char **argv)
