@@ -317,16 +317,6 @@ static inline void init_input_backend()
 {
 }
 
-static void stutter()
-{
-	int i, j = 0, k = 0;
-
-	for (i = 0; i < 9000000; i++) {
-		j++;
-		k--;
-	}
-}
-
 static inline enum rod_e determine_next_rod()
 {
 	enum rod_e base, probe;
@@ -345,12 +335,8 @@ found_solution:
 
 static enum rod_e get_next_action()
 {
-	if (!(flags & FLAGS_QUIET)) {
-		int i;
-
-		for (i = 0; i < 20; i++)
-			stutter();
-	}
+	if (!(flags & FLAGS_QUIET))
+		usleep(500000);
 
 	/* Determine the direction to move the smallest disk. */
 	if (!direction)
