@@ -387,22 +387,22 @@ static void print_game_status()
 	int i, j;
 
 	for (j = 0; j < ROD_MAX; j++)
-		mprintf("   %c	 ", j + 0x41);
+		mprintf("   %c   ", j + 0x41);
 	mprintf("\n");
 
 	for (i = disk_count + 1; i > 0; i--) {
 		for (j = 0; j < ROD_MAX; j++) {
 			if (rods[j][i]) {
-				mprintf("  [%d]	 ", rods[j][i]);
+				mprintf("  [%d]  ", rods[j][i]);
 			} else {
-				mprintf("   |	");
+				mprintf("   |   ");
 			}
 		}
 		mprintf("\n");
 	}
 
 	for (j = 0; j < ROD_MAX; j++)
-		mprintf("  ---	");
+		mprintf("  ---  ");
 
 	mprintf("\n\n Moves taken: %3lu / %lu\n", move_counter, optimal);
 }
